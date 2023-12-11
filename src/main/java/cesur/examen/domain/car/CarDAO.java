@@ -14,17 +14,27 @@ import java.util.List;
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno: Alejandro Álvarez Mérida
+ * Fecha: 11-12-2023
  */
 
 @Log
 public class CarDAO implements DAO<Car> {
     @Override
     public Car save(Car car) {
-
-        /* Implement method here */
-
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(car);
+            transaction.commit();
+            log.info("Car with ID " + car.getId() + " was saved successfully");
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            log.severe("Error in save(): " + e.getMessage());
+            throw new RuntimeException(e);
+        }
         return car;
     }
 
@@ -48,15 +58,27 @@ public class CarDAO implements DAO<Car> {
         return null;
     }
 
-    public List<Car> getAllByManufacturer(String manufacturer){
+    public List<Car> getAllByManufacturer(String manufacturer) {
         var out = new ArrayList<Car>();
+        Transaction transaction = null;
 
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
 
-        /* Implement method here */
+            Query<Car> query = session.createQuery("FROM Car WHERE manufacturer = :manufacturer", Car.class);
+            query.setParameter("manufacturer", manufacturer);
+            out = (ArrayList<Car>) query.list();
+
+            transaction.commit();
+            log.info("Cars retrieved by manufacturer successfully. Manufacturer: " + manufacturer);
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            log.severe("Error in getAllByManufacturer(): " + e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         return out;
     }
-
-
-
 }

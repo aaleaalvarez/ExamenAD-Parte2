@@ -1,18 +1,18 @@
 package cesur.examen.domain.client;
 
-import cesur.examen.domain.car.Car;
-import cesur.examen.domain.car.CarDAO;
+import cesur.examen.common.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno: Alejandro Álvarez Mérida
+ * Fecha: 11-12-2023
  */
 
 public class ClientService {
@@ -25,10 +25,27 @@ public class ClientService {
      * @param manufacturer
      * @return the list of clients
      */
-    public static List<Client> hasManufacturer(String manufacturer){
-        var out= new ArrayList<Client>(0);
+    public static List<Client> hasManufacturer(String manufacturer) {
+        var out = new ArrayList<Client>();
 
-        /* Implement method here */
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            session.beginTransaction();
+            String Query = "select distinct car.client from Car car where car.manufacturer = :manufacturer";
+            Query<Client> query = session.createQuery(Query, Client.class);
+            query.setParameter("manufacturer", manufacturer);
+            out = new ArrayList<>(query.getResultList());
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
 
         return out;
     }

@@ -1,6 +1,5 @@
 package cesur.examen.common;
 
-import jdk.jshell.spi.ExecutionControlProvider;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import org.hibernate.SessionFactory;
@@ -10,8 +9,8 @@ import org.hibernate.cfg.Configuration;
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno: Alejandro Álvarez Mérida
+ * Fecha: 11-12-2023
  *
  * No se permite escribir en consola desde las clases DAO, Service y Utils usando System.out.
  * En su lugar, usa log.info(), log.warning() y log.severe() para mostrar información interna
@@ -28,20 +27,25 @@ public class HibernateUtil {
      * Configuration data is retrieved from hibernate.cfg.xml located in resource folder.
      */
     @Getter
-    private static final SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
 
     static{
         log.info("Loading Hibernate configuration...");
         try {
+            Configuration configuration = new Configuration();
 
-            /* Complete method here */
-            sessionFactory = null;
+            configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/examenad");
+            configuration.setProperty("hibernate.connection.username", "root");
+            configuration.setProperty("hibernate.connection.password", "04112003");
+            configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
 
-            log.info("SessionFactory not created yet!");
-        } catch(Exception ex){
-            log.severe("Something fails in buildSessionFactory()");
-            log.severe(ex.getMessage());
-            throw new RuntimeException("Hibernate config error");
+            Configuration cfg = new Configuration();
+            cfg.configure();
+            sessionFactory = cfg.buildSessionFactory();
+            log.info("SessionFactory creada con exito!");
+        } catch (Exception ex) {
+            log.severe("Error al crear SessionFactory()");
+            ex.printStackTrace();
         }
     }
 
